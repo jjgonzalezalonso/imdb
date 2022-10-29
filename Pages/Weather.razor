@@ -1,0 +1,50 @@
+﻿@page "/"
+@using System.Globalization
+@using WeatherApp.Models
+@inject HttpClient Client
+
+<h3>IMDB API</h3>
+
+<div class="input-group mb-3 mt-3">
+    @*mb-3 margin button 3, mt-3 margin top 3*@
+    <input type="text" class="form-control" placeholder="City Name" @bind=peliInput />
+    <div class="input-group-append">
+        <button @onclick=GetWeather class="btn btn-outline-secondary" type="button">Search</button>
+    </div>
+</div>
+@if (@pelicula != null)
+{
+    <div style="display: flex; flex-wrap:wrap; align-items:center;">
+        @foreach (var poke in pelicula.results)
+        {
+            <div style="margin-right: 2%; margin-bottom:10px; text-align:center;">
+                <a href="@poke.image">
+                    <img src="@poke.image" style="width: 225px;height:300px;" />
+                </a>
+                <p><em><b>@poke.title)</b></em></p>
+                <p><b>@poke.description)</b></p>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <p><em>...</em></p>
+}
+
+@code {
+    public string peliInput { get; set; }
+    public int NumberOfRows = 5;
+    imdbModel pelicula;
+
+    async Task GetWeather()
+    {
+        pelicula = await GetCityData();
+    }
+
+    async Task<imdbModel> GetCityData()
+    {
+        var cityData = await Client.GetFromJsonAsync<imdbModel>(Endpoints.GetPelicula(peliInput));
+        return cityData;
+    }
+}
